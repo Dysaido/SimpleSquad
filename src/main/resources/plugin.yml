@@ -1,0 +1,6 @@
+name: SimpleSquad
+version: '${project.version}'
+main: xyz.dysaido.squad.SimpleSquad
+author: Dysaido
+softdepend:  [PlaceholderApi, Vault]
+description: It helps to players that create a team. Who is in the squad, the members cannot damage each other. This extension counts deaths and kills from members. The squad includes a leader and members, the leader can appoint a new leader so it is not static value. The members of team can deposit a money with our team/squad, but just the leader can use this. I think it should be great.

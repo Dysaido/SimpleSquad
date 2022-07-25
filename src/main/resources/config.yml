@@ -1,0 +1,5 @@
+debug: false
+invite-time: 60
+command:
+  name: "squad"
+  aliases: [gang, team, clan]
