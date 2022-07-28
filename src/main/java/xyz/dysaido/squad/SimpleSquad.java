@@ -5,7 +5,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import xyz.dysaido.squad.api.Squad;
 import xyz.dysaido.squad.api.command.CommandManager;
 import xyz.dysaido.squad.commands.SquadCommand;
-import xyz.dysaido.squad.config.DefaultYaml;
 import xyz.dysaido.squad.team.TeamManagerImpl;
 import xyz.dysaido.squad.util.Reflection;
 import xyz.dysaido.squad.util.YamlBuilder;
