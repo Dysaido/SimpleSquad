@@ -95,7 +95,7 @@ public class YamlBuilder {
         try {
             getFile().save(file);
         } catch (IOException e) {
-            Logger.warning(TAG, e.getMessage());
+            Logger.error(TAG, e.getMessage());
         }
     }
 }
