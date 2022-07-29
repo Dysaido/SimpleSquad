@@ -2,7 +2,8 @@ package xyz.dysaido.squad.api;
 
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.plugin.Plugin;
-import xyz.dysaido.squad.team.TeamManagerImpl;
+import xyz.dysaido.squad.api.team.TeamManager;
+import xyz.dysaido.squad.api.user.UserManager;
 import xyz.dysaido.squad.util.YamlBuilder;
 
 public interface Squad extends Plugin {
@@ -11,5 +12,7 @@ public interface Squad extends Plugin {
 
     YamlBuilder getDataYaml();
 
-    TeamManagerImpl getTeamManager();
+    TeamManager getTeamManager();
+
+    UserManager getUserManager();
 }

@@ -1,15 +1,16 @@
 package xyz.dysaido.squad.api.team;
 
 import org.bukkit.entity.Player;
+import xyz.dysaido.squad.api.user.User;
 import xyz.dysaido.squad.util.Format;
 
 public class TeamInvite {
 
-    private final Player sender;
-    private final Player target;
+    private final User sender;
+    private final User target;
     private long expireTime;
 
-    public TeamInvite(Player sender, Player target, int second) {
+    public TeamInvite(User sender, User target, int second) {
         this.sender = sender;
         this.target = target;
         this.expireTime = System.currentTimeMillis() + second * 1000L;
@@ -28,11 +29,11 @@ public class TeamInvite {
         return getDuration() < 1;
     }
 
-    public Player getSender() {
+    public User getSender() {
         return sender;
     }
 
-    public Player getTarget() {
+    public User getTarget() {
         return target;
     }
 }

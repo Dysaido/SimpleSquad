@@ -4,8 +4,11 @@ import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.plugin.java.JavaPlugin;
 import xyz.dysaido.squad.api.Squad;
 import xyz.dysaido.squad.api.command.CommandManager;
+import xyz.dysaido.squad.api.team.TeamManager;
+import xyz.dysaido.squad.api.user.UserManager;
 import xyz.dysaido.squad.commands.SquadCommand;
 import xyz.dysaido.squad.team.TeamManagerImpl;
+import xyz.dysaido.squad.user.UserManagerImpl;
 import xyz.dysaido.squad.util.Reflection;
 import xyz.dysaido.squad.util.YamlBuilder;
 
@@ -19,6 +22,7 @@ public final class SimpleSquad extends JavaPlugin implements Squad {
 
     @Override
     public void onEnable() {
+        UserManagerImpl.getInstance().enable();
         dataYaml = new YamlBuilder(this, "squads");
         teamManager = new TeamManagerImpl();
         teamManager.loadFromFile();
@@ -41,6 +45,7 @@ public final class SimpleSquad extends JavaPlugin implements Squad {
     public void onDisable() {
         dataYaml.saveFile();
         commandManager.unregisterAll();
+        UserManagerImpl.getInstance().disable();
     }
 
     @Override
@@ -55,7 +60,12 @@ public final class SimpleSquad extends JavaPlugin implements Squad {
     }
 
     @Override
-    public TeamManagerImpl getTeamManager() {
+    public TeamManager getTeamManager() {
         return teamManager;
+    }
+
+    @Override
+    public UserManager getUserManager() {
+        return UserManagerImpl.getInstance();
     }
 }
