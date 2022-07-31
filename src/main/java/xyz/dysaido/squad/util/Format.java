@@ -17,14 +17,24 @@ public class Format {
     public static final String LINE_WITH_24_CHARS = "                        ";
     public static final String LINE_WITH_32_CHARS = "                                ";
 
-    public static int floor(double num) {
-        final int floor = (int) num;
-        return floor == num ? floor : floor - (int) (Double.doubleToRawLongBits(num) >>> 63);
+    public static int floor(float value) {
+        int i = (int)value;
+        return value < (float)i ? i - 1 : i;
     }
 
-    public static int ceil(double num) {
-        final int floor = (int) num;
-        return floor == num ? floor : floor + (int) (~Double.doubleToRawLongBits(num) >>> 63);
+    public static int floor(double value) {
+        int i = (int)value;
+        return value < (double)i ? i - 1 : i;
+    }
+
+    public static int ceil(float value) {
+        int i = (int)value;
+        return value > (float)i ? i + 1 : i;
+    }
+
+    public static int ceil(double value) {
+        int i = (int)value;
+        return value > (double)i ? i + 1 : i;
     }
 
     public static boolean isDouble(String string) {
