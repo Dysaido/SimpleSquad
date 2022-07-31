@@ -8,6 +8,8 @@ import xyz.dysaido.squad.util.YamlBuilder;
 
 public interface Squad extends Plugin {
 
+    void reload();
+
     SimpleCommandMap getCommandMap();
 
     YamlBuilder getDataYaml();
