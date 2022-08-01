@@ -1,6 +1,7 @@
 package xyz.dysaido.squad;
 
 import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.plugin.java.JavaPlugin;
 import xyz.dysaido.squad.api.Squad;
@@ -16,6 +17,7 @@ import xyz.dysaido.squad.util.VaultHook;
 import xyz.dysaido.squad.util.YamlBuilder;
 
 import java.lang.reflect.Field;
+import java.util.Map;
 import java.util.Optional;
 
 public final class SimpleSquad extends JavaPlugin implements Squad {
@@ -68,6 +70,12 @@ public final class SimpleSquad extends JavaPlugin implements Squad {
     public SimpleCommandMap getCommandMap() {
         Field field = Reflection.getField(getServer().getClass(), SimpleCommandMap.class);
         return Reflection.fetch(getServer(), field);
+    }
+
+    @Override
+    public Map<String, Command> getKnownCommands(SimpleCommandMap commandMap) {
+        Field knownCommandsField = Reflection.getField(SimpleCommandMap.class, Map.class);
+        return Reflection.fetch(commandMap, knownCommandsField);
     }
 
     @Override
