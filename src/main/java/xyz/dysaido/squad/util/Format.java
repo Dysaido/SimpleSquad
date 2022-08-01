@@ -9,6 +9,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 public class Format {
 
@@ -16,6 +18,16 @@ public class Format {
     public static final String LINE_WITH_16_CHARS = "                ";
     public static final String LINE_WITH_24_CHARS = "                        ";
     public static final String LINE_WITH_32_CHARS = "                                ";
+
+    public static <T> Optional<T> ifElse(Optional<T> optional, Consumer<T> present, Runnable elseAction) {
+        if (optional.isPresent()) {
+            present.accept(optional.get());
+        } else {
+            elseAction.run();
+        }
+
+        return optional;
+    }
 
     public static int floor(float value) {
         int i = (int)value;
