@@ -22,4 +22,9 @@ public interface User {
 
     UUID getId();
 
+    void withdraw(double amount);
+
+    void deposit(double amount);
+
+    double getBalance();
 }
