@@ -29,6 +29,10 @@ public class Format {
         return optional;
     }
 
+    public static void hookWarningMessage(String tag, String hookedPlugin, String method) {
+        Logger.warning(tag, String.format("%s is not implemented on this server. The plugin cannot execute this method (%s) without %s.", hookedPlugin, method, hookedPlugin));
+    }
+
     public static int floor(float value) {
         int i = (int)value;
         return value < (float)i ? i - 1 : i;
