@@ -41,7 +41,7 @@ public class UserManagerImpl implements UserManager {
     public Optional<User> remove(UUID id) {
         Objects.requireNonNull(id);
         User user = userMap.remove(id);
-        return Optional.of(user);
+        return Optional.ofNullable(user);
     }
 
     public Collection<User> getUsers() {
