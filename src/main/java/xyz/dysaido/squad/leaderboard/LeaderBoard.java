@@ -1,2 +1,4 @@
-package xyz.dysaido.squad.leaderboard;public class LeaderBoard {
+package xyz.dysaido.squad.leaderboard;
+
+public class LeaderBoard {
 }

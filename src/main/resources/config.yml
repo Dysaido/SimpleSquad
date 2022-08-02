@@ -3,3 +3,8 @@ invite-time: 60
 command:
   name: "squad"
   aliases: [gang, team, clan]
+  permission: "simplesquad.command.squad"
+  create:
+    name: "create"
+    aliases: [make, generate, invent]
+    permission: "simplesquad.command.squad.create"
