@@ -11,7 +11,8 @@ public final class Logger {
     private final static int ERROR = 3;
     private final static String TAG = "[SimpleSquad]";
 
-    private Logger() {}
+    private Logger() {
+    }
 
     public static void warning(String tag, String message) {
         println(WARNING, tag, message);
@@ -32,10 +33,13 @@ public final class Logger {
     private static void println(int priority, String tag, String message) {
         switch (priority) {
             case DEBUG:
-                if (DefaultYaml.DEBUG) sendMessage(ChatColor.GREEN, " [" + tag + "] : " + message);
+                if (DefaultYaml.DEBUG) {
+                    Bukkit.getServer().getConsoleSender()
+                            .sendMessage(TAG + ChatColor.BLUE + " (DEBUG) " + ChatColor.GREEN + "[" + tag + "] : " + message);
+                }
                 break;
             case INFORMATION:
-                sendMessage(ChatColor.BLUE, " [" + tag + "] : " + message);
+                sendMessage(ChatColor.AQUA, " [" + tag + "] : " + message);
                 break;
             case WARNING:
                 sendMessage(ChatColor.YELLOW, " [" + tag + "] : " + message);
