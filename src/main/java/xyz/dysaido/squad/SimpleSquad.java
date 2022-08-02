@@ -6,19 +6,17 @@ import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.plugin.java.JavaPlugin;
 import xyz.dysaido.squad.api.Squad;
 import xyz.dysaido.squad.api.command.CommandManager;
+import xyz.dysaido.squad.api.team.Team;
 import xyz.dysaido.squad.api.team.TeamManager;
 import xyz.dysaido.squad.api.user.UserManager;
 import xyz.dysaido.squad.commands.SquadCommand;
 import xyz.dysaido.squad.team.TeamManagerImpl;
 import xyz.dysaido.squad.user.UserManagerImpl;
-import xyz.dysaido.squad.util.PlaceholderApiHook;
-import xyz.dysaido.squad.util.Reflection;
-import xyz.dysaido.squad.util.VaultHook;
-import xyz.dysaido.squad.util.YamlBuilder;
+import xyz.dysaido.squad.util.*;
 
 import java.lang.reflect.Field;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Stream;
 
 public final class SimpleSquad extends JavaPlugin implements Squad {
 
@@ -26,18 +24,23 @@ public final class SimpleSquad extends JavaPlugin implements Squad {
     private TeamManagerImpl teamManager;
     private CommandManager commandManager;
 
-    private PlaceholderApiHook placeholderApiHook;
+    private PlaceholderAPIHook placeholderApiHook;
 
     private VaultHook vaultHook;
 
     @Override
     public void onEnable() {
         if (Bukkit.getPluginManager().isPluginEnabled("Vault")) {
-            vaultHook = new VaultHook();
+            vaultHook = new VaultHook(this);
+        } else {
+            Logger.warning("JavaPlugin", "Vault is not found");
         }
 
-        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderApi")) {
-            placeholderApiHook = new PlaceholderApiHook();
+        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            placeholderApiHook = new PlaceholderAPIHook(this);
+            placeholderApiHook.register();
+        } else {
+            Logger.warning("JavaPlugin", "PlaceholderAPI is not found");
         }
 
         getConfig().options().copyDefaults(true);
@@ -51,6 +54,15 @@ public final class SimpleSquad extends JavaPlugin implements Squad {
         commandManager.register("simplesquad", new SquadCommand(this));
 
     }
+
+    /**
+     * void t() {
+     *     Stream<Team> topKills = teamManager.getTeams().stream().sorted((first, second) -> Integer.compare(second.getKills(), first.getKills()));
+     *     Stream<Team> topDeaths = teamManager.getTeams().stream().sorted((first, second) -> Integer.compare(second.getDeaths(), first.getDeaths()));
+     *     Stream<Team> topMoney = teamManager.getTeams().stream().sorted((first, second) -> Double.compare(second.getMoney(), first.getMoney()));
+     * }
+     */
+
 
     @Override
     public void reload() {
@@ -97,7 +109,7 @@ public final class SimpleSquad extends JavaPlugin implements Squad {
         return Optional.ofNullable(vaultHook);
     }
 
-    public Optional<PlaceholderApiHook> getPlaceholderApiHook() {
+    public Optional<PlaceholderAPIHook> getPlaceholderAPIHook() {
         return Optional.ofNullable(placeholderApiHook);
     }
 }
