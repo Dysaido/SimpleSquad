@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 
 public final class SimpleSquad extends JavaPlugin implements Squad {
 
+    private static SimpleSquad plugin;
     private YamlBuilder dataYaml;
     private TeamManagerImpl teamManager;
     private CommandManager commandManager;
@@ -30,6 +31,8 @@ public final class SimpleSquad extends JavaPlugin implements Squad {
 
     @Override
     public void onEnable() {
+        plugin = this;
+
         if (Bukkit.getPluginManager().isPluginEnabled("Vault")) {
             vaultHook = new VaultHook(this);
         } else {
@@ -76,6 +79,10 @@ public final class SimpleSquad extends JavaPlugin implements Squad {
         dataYaml.saveFile();
         commandManager.unregisterAll();
         UserManagerImpl.getInstance().disable();
+    }
+
+    public static SimpleSquad getPlugin() {
+        return plugin;
     }
 
     @Override

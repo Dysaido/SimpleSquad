@@ -5,6 +5,11 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import xyz.dysaido.squad.SimpleSquad;
+import xyz.dysaido.squad.api.team.Team;
+import xyz.dysaido.squad.team.TeamImpl;
+
+import java.util.List;
+import java.util.Objects;
 
 public class PlaceholderAPIHook extends PlaceholderExpansion {
 
@@ -39,13 +44,22 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
 
     @Override
     public @Nullable String onPlaceholderRequest(Player player, @NotNull String params) {
-        if (player == null) {
-            return "";
-        } else {
-            if (params.equals("simplesquad")) {
-                return "TRUE";
+        if (params.startsWith("player_team")) {
+            Team team = SimpleSquad.getPlugin().getTeamManager().findTeamByPlayer(player);
+            switch (params) {
+                case "player_team_name":
+                    return Objects.isNull(team) ? "-" : team.getName();
+                case "player_team_kills":
+                    return Objects.isNull(team) ? "-1" : String.valueOf(team.getKills());
+                case "player_team_deaths":
+                    return Objects.isNull(team) ? "-1" : String.valueOf(team.getDeaths());
+                case "player_team_balance":
+                    return Objects.isNull(team) ? "-1" : String.valueOf(team.getMoney());
+                default:
+                    return null;
             }
-            return "false";
         }
+        // TODO: Get by sorted kills, deaths and balance
+        return null;
     }
 }
