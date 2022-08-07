@@ -21,6 +21,7 @@ public class TeamImpl implements Team {
     private int kills;
     private int deaths;
     private double money;
+    private boolean damage;
 
     public TeamImpl(UUID id, YamlBuilder dataYaml) {
         this.id = id;
@@ -156,5 +157,15 @@ public class TeamImpl implements Team {
     @Override
     public double getMoney() {
         return money;
+    }
+
+    @Override
+    public void setDamage(boolean damage) {
+        this.damage = damage;
+    }
+
+    @Override
+    public boolean canDamage() {
+        return damage;
     }
 }

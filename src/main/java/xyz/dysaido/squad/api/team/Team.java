@@ -44,4 +44,8 @@ public interface Team {
     void setMoney(double money);
 
     double getMoney();
+
+    void setDamage(boolean damage);
+
+    boolean canDamage();
 }
