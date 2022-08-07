@@ -3,6 +3,7 @@ package xyz.dysaido.squad;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import xyz.dysaido.squad.api.Squad;
 import xyz.dysaido.squad.api.command.CommandManager;
@@ -10,6 +11,7 @@ import xyz.dysaido.squad.api.team.Team;
 import xyz.dysaido.squad.api.team.TeamManager;
 import xyz.dysaido.squad.api.user.UserManager;
 import xyz.dysaido.squad.commands.SquadCommand;
+import xyz.dysaido.squad.listener.SquadListener;
 import xyz.dysaido.squad.team.TeamManagerImpl;
 import xyz.dysaido.squad.user.UserManagerImpl;
 import xyz.dysaido.squad.util.*;
@@ -24,10 +26,9 @@ public final class SimpleSquad extends JavaPlugin implements Squad {
     private YamlBuilder dataYaml;
     private TeamManagerImpl teamManager;
     private CommandManager commandManager;
-
     private PlaceholderAPIHook placeholderApiHook;
-
     private VaultHook vaultHook;
+    private SquadListener listener;
 
     @Override
     public void onEnable() {
@@ -55,7 +56,8 @@ public final class SimpleSquad extends JavaPlugin implements Squad {
         teamManager.loadFromFile();
         commandManager = new CommandManager(this);
         commandManager.register("simplesquad", new SquadCommand(this));
-
+        listener = new SquadListener(this);
+        getServer().getPluginManager().registerEvents(listener, this);
     }
 
     /**
@@ -77,6 +79,7 @@ public final class SimpleSquad extends JavaPlugin implements Squad {
     @Override
     public void onDisable() {
         dataYaml.saveFile();
+        HandlerList.unregisterAll(listener);
         commandManager.unregisterAll();
         UserManagerImpl.getInstance().disable();
     }
