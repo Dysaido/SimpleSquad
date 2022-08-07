@@ -3,6 +3,7 @@ package xyz.dysaido.squad.api.team;
 import org.bukkit.entity.Player;
 import xyz.dysaido.squad.api.user.User;
 import xyz.dysaido.squad.util.Format;
+import xyz.dysaido.squad.util.NumericParser;
 
 public class TeamInvite {
 
@@ -18,7 +19,7 @@ public class TeamInvite {
 
     public int getDuration() {
         long currentTime = System.currentTimeMillis();
-        return expireTime > currentTime ? Format.ceil((expireTime - currentTime) / 1000D) : 0;
+        return expireTime > currentTime ? NumericParser.ceil((expireTime - currentTime) / 1000D) : 0;
     }
 
     public void doLeft() {

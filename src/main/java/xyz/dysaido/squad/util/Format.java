@@ -32,53 +32,6 @@ public class Format {
     public static void hookWarningMessage(String tag, String hookedPlugin, String method) {
         Logger.warning(tag, String.format("%s is not implemented on this server. The plugin cannot execute this method (%s) without %s.", hookedPlugin, method, hookedPlugin));
     }
-
-    public static int floor(float value) {
-        int i = (int)value;
-        return value < (float)i ? i - 1 : i;
-    }
-
-    public static int floor(double value) {
-        int i = (int)value;
-        return value < (double)i ? i - 1 : i;
-    }
-
-    public static int ceil(float value) {
-        int i = (int)value;
-        return value > (float)i ? i + 1 : i;
-    }
-
-    public static int ceil(double value) {
-        int i = (int)value;
-        return value > (double)i ? i + 1 : i;
-    }
-
-    public static boolean isDouble(String string) {
-        try {
-            Double.parseDouble(string);
-            return true;
-        } catch (Exception ex) {
-            return false;
-        }
-    }
-
-    public static boolean isInt(String string) {
-        try {
-            Integer.parseInt(string);
-            return true;
-        } catch (Exception ex) {
-            return false;
-        }
-    }
-
-    public static boolean isFloat(String string) {
-        try {
-            Float.parseFloat(string);
-            return true;
-        } catch (Exception ex) {
-            return false;
-        }
-    }
     public static String colored(String text) {
         return ChatColor.translateAlternateColorCodes('&', text);
     }
