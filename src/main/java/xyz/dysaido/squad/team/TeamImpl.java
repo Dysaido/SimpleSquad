@@ -17,6 +17,7 @@ public class TeamImpl implements Team {
     private final YamlBuilder dataYaml;
     private final ConfigurationSection section;
     private String leader;
+    private final List<String> deputies;
     private final List<String> members;
     private int kills;
     private int deaths;
@@ -35,6 +36,7 @@ public class TeamImpl implements Team {
         this.kills =  section.getInt("kills");
         this.deaths = section.getInt("deaths");
         this.money = section.getDouble("money");
+        this.deputies = section.getStringList("deputies");
         this.members = section.getStringList("members");
     }
 
@@ -74,6 +76,25 @@ public class TeamImpl implements Team {
     @Override
     public String getLeader() {
         return leader;
+    }
+
+    @Override
+    public void addDeputy(Player player) {
+        this.deputies.add(player.getName());
+        this.section.set("deputies", deputies);
+        this.dataYaml.saveFile();
+    }
+
+    @Override
+    public void removeDeputy(String name) {
+        this.deputies.remove(name);
+        this.section.set("deputies", deputies);
+        this.dataYaml.saveFile();
+    }
+
+    @Override
+    public List<String> getDeputy() {
+        return deputies;
     }
 
     @Override

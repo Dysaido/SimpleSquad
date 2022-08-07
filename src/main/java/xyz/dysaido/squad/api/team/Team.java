@@ -19,6 +19,12 @@ public interface Team {
 
     String getLeader();
 
+    void addDeputy(Player player);
+
+    void removeDeputy(String name);
+
+    List<String> getDeputy();
+
     void addMember(Player player);
 
     void removeMember(String name);

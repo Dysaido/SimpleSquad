@@ -46,6 +46,7 @@ public class TeamManagerImpl implements TeamManager {
         section.set("kills", 0);
         section.set("deaths", 0);
         section.set("money", 0.00D);
+        section.set("deputies", new ArrayList<>());
         section.set("members", Collections.singletonList(leader));
         plugin.getDataYaml().saveFile();
         teamMap.put(id, new TeamImpl(id, plugin.getDataYaml()));
