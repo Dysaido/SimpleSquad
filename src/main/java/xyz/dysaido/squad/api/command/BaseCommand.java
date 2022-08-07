@@ -5,6 +5,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
+import org.jetbrains.annotations.NotNull;
 import xyz.dysaido.squad.SimpleSquad;
 import xyz.dysaido.squad.api.Squad;
 import xyz.dysaido.squad.util.Format;
@@ -21,7 +22,7 @@ public abstract class BaseCommand extends Command {
     }
 
     @Override
-    public boolean execute(CommandSender sender, String label, String[] args) {
+    public boolean execute(@NotNull CommandSender sender, @NotNull String label, String[] args) {
         if (getPermission() != null && !sender.hasPermission(getPermission())) {
             sender.sendMessage(Format.colored(getPermissionMessage()));
             return false;
@@ -33,7 +34,7 @@ public abstract class BaseCommand extends Command {
     public abstract void handle(CommandSender sender, String label, String[] args);
 
     @Override
-    public List<String> tabComplete(CommandSender sender, String alias, String[] args) throws IllegalArgumentException {
+    public @NotNull List<String> tabComplete(CommandSender sender, @NotNull String alias, String[] args) throws IllegalArgumentException {
         Player player = sender instanceof Player ? (Player) sender : null;
         ArrayList<String> list = new ArrayList<>();
         for (Player player1 : sender.getServer().getOnlinePlayers()) {
