@@ -22,7 +22,7 @@ public class TeamImpl implements Team {
     private int kills;
     private int deaths;
     private double money;
-    private boolean damage;
+    private boolean damage = false;
 
     public TeamImpl(UUID id, YamlBuilder dataYaml) {
         this.id = id;
