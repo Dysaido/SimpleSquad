@@ -16,7 +16,7 @@ public interface User {
 
     Optional<TeamInvite> getInvite();
 
-    boolean isSimilar(User user);
+    boolean isSame(User user);
 
     boolean isLeader();
 

@@ -69,8 +69,7 @@ public class SquadListener implements Listener {
     private void protectMembers(Cancellable cancellable, Player victimPlayer, Player killerPlayer) {
         User victim = userManager.get(victimPlayer.getUniqueId()).orElseThrow(NullPointerException::new);
         User killer = userManager.get(killerPlayer.getUniqueId()).orElseThrow(NullPointerException::new);
-
-        if (victim.isSimilar(killer)) {
+        if (victim.isSame(killer)) {
             cancellable.setCancelled(true);
         }
 

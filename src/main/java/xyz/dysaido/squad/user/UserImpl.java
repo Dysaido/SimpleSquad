@@ -48,9 +48,10 @@ public class UserImpl implements User {
     }
 
     @Override
-    public boolean isSimilar(User user) {
+    public boolean isSame(User user) {
         if (user.getTeam().isPresent()) {
-            return user.getTeam().get().equals(team);
+            Team team = user.getTeam().get();
+            return team.equals(this.team) && !team.canDamage();
         }
         return false;
     }
