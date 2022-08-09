@@ -34,7 +34,7 @@ public class SquadListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         User user = userManager.add(player.getUniqueId());
-        Team team = teamManager.get(user.getId());
+        Team team = teamManager.findTeamByPlayer(player);
         user.setTeam(team);
     }
 
