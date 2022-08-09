@@ -28,9 +28,7 @@ public class UserManagerImpl implements UserManager {
 
     public User add(UUID id) {
         Objects.requireNonNull(id);
-        User user = new UserImpl(id);
-        userMap.put(id, user);
-        return user;
+        return userMap.computeIfAbsent(id, UserImpl::new);
     }
 
     public Optional<User> get(UUID id) {
