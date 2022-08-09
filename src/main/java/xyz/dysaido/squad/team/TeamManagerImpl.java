@@ -31,7 +31,7 @@ public class TeamManagerImpl implements TeamManager {
             UUID uuid = UUID.fromString(id);
             if (section == null || teamMap.containsKey(UUID.fromString(id))) continue;
             TeamImpl clan = new TeamImpl(uuid, plugin.getDataYaml());
-            teamMap.put(uuid, clan);
+            teamMap.putIfAbsent(uuid, clan);
         }
 
     }
@@ -49,7 +49,7 @@ public class TeamManagerImpl implements TeamManager {
         section.set("deputies", new ArrayList<>());
         section.set("members", Collections.singletonList(leader));
         plugin.getDataYaml().saveFile();
-        teamMap.put(id, new TeamImpl(id, plugin.getDataYaml()));
+        teamMap.computeIfAbsent(id, uuid -> new TeamImpl(uuid, plugin.getDataYaml()));
     }
 
     @Override
