@@ -33,7 +33,7 @@ public class SquadListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        User user = userManager.add(player.getUniqueId());
+        User user = userManager.add(player.getUniqueId(), player.getName());
         Team team = teamManager.findTeamByPlayer(player);
         user.setTeam(team);
     }

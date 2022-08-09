@@ -18,7 +18,9 @@ public class UserManagerImpl implements UserManager {
     }
 
     public void enable() {
-        Bukkit.getServer().getOnlinePlayers().forEach(player -> this.add(player.getUniqueId()));
+        Bukkit.getServer().getOnlinePlayers().forEach(player -> {
+            this.add(player.getUniqueId(), player.getName());
+        });
     }
 
     public void disable() {
@@ -26,22 +28,26 @@ public class UserManagerImpl implements UserManager {
         userMap.clear();
     }
 
-    public User add(UUID id) {
+    @Override
+    public User add(UUID id, String name) {
         Objects.requireNonNull(id);
-        return userMap.computeIfAbsent(id, UserImpl::new);
+        return userMap.computeIfAbsent(id, uuid -> new UserImpl(uuid, name));
     }
 
+    @Override
     public Optional<User> get(UUID id) {
         Objects.requireNonNull(id);
         return Optional.ofNullable(userMap.get(id));
     }
 
+    @Override
     public Optional<User> remove(UUID id) {
         Objects.requireNonNull(id);
         User user = userMap.remove(id);
         return Optional.ofNullable(user);
     }
 
+    @Override
     public Collection<User> getUsers() {
         return userMap.values();
     }

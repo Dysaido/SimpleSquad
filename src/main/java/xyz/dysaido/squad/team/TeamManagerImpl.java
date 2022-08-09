@@ -2,6 +2,7 @@ package xyz.dysaido.squad.team;
 
 import com.google.common.base.Charsets;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -11,6 +12,7 @@ import xyz.dysaido.squad.api.team.Team;
 import xyz.dysaido.squad.api.team.TeamInvite;
 import xyz.dysaido.squad.api.team.TeamManager;
 import xyz.dysaido.squad.api.user.User;
+import xyz.dysaido.squad.api.user.UserType;
 import xyz.dysaido.squad.user.UserManagerImpl;
 
 import java.util.*;
@@ -30,24 +32,32 @@ public class TeamManagerImpl implements TeamManager {
             ConfigurationSection section = dataYaml.getConfigurationSection(id);
             UUID uuid = UUID.fromString(id);
             if (section == null || teamMap.containsKey(UUID.fromString(id))) continue;
-            TeamImpl clan = new TeamImpl(uuid, plugin.getDataYaml());
-            teamMap.putIfAbsent(uuid, clan);
+            TeamImpl team = new TeamImpl(uuid, plugin.getDataYaml());
+            teamMap.putIfAbsent(uuid, team);
         }
 
     }
 
     @Override
-    public void createTeam(String name, String leader, String initial) {
+    public void createTeam(String name, User leader, String initial) {
         UUID id = UUID.nameUUIDFromBytes(("Squad:" + name).getBytes(Charsets.UTF_8));
         ConfigurationSection section = dataYaml.createSection(id.toString());
+        OfflinePlayer player = Bukkit.getOfflinePlayer(leader.getId());
         section.set("name", name);
         section.set("initial", initial);
-        section.set("leader", leader);
         section.set("kills", 0);
         section.set("deaths", 0);
         section.set("money", 0.00D);
-        section.set("deputies", new ArrayList<>());
-        section.set("members", Collections.singletonList(leader));
+        ConfigurationSection membersSection;
+        if (section.isConfigurationSection("members")) {
+            membersSection  = section.createSection("members");
+        } else {
+            membersSection = section.getConfigurationSection("members");
+        }
+        ConfigurationSection leaderSection = Objects.requireNonNull(membersSection)
+                .createSection(leader.getId().toString());
+        leaderSection.set("name", player.getName());
+        leaderSection.set("type", UserType.LEADER.name());
         plugin.getDataYaml().saveFile();
         teamMap.computeIfAbsent(id, uuid -> new TeamImpl(uuid, plugin.getDataYaml()));
     }
@@ -65,7 +75,7 @@ public class TeamManagerImpl implements TeamManager {
     @Override
     public void removeTeam(UUID id) {
         Team team = teamMap.remove(id);
-        team.getMembers().stream().map(Bukkit::getPlayer)
+        team.getUserMap().keySet().stream().map(Bukkit::getPlayer)
                 .filter(Objects::nonNull)
                 .map(player -> UserManagerImpl.getInstance().get(player.getUniqueId()))
                 .filter(Optional::isPresent)
@@ -77,7 +87,7 @@ public class TeamManagerImpl implements TeamManager {
 
     @Override
     public Team findTeamByPlayer(Player player) {
-        return teamMap.values().stream().filter(clan -> clan.getMembers().contains(player.getName())).findFirst().orElse(null);
+        return teamMap.values().stream().filter(team -> team.getUserMap().containsKey(player.getUniqueId())).findFirst().orElse(null);
     }
 
     @Override

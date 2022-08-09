@@ -1,9 +1,12 @@
 package xyz.dysaido.squad.api.team;
 
 import org.bukkit.entity.Player;
+import xyz.dysaido.squad.api.user.UserType;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 public interface Team {
 
@@ -15,7 +18,7 @@ public interface Team {
 
     boolean isLeader(Player player);
 
-    void setLeader(String leader);
+    void setLeader(Player player);
 
     String getLeader();
 
@@ -23,13 +26,13 @@ public interface Team {
 
     void removeDeputy(String name);
 
-    List<String> getDeputy();
+    Stream<UUID> getDeputies();
 
-    void addMember(Player player);
+    void join(Player player);
 
-    void removeMember(String name);
+    void kick(String name);
 
-    List<String> getMembers();
+    Stream<UUID> getMembers();
 
     void addKill();
 
@@ -54,4 +57,6 @@ public interface Team {
     void setDamage(boolean damage);
 
     boolean canDamage();
+
+    Map<UUID, UserType> getUserMap();
 }

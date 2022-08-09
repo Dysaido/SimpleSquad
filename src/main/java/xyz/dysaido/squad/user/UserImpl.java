@@ -1,6 +1,5 @@
 package xyz.dysaido.squad.user;
 
-import com.google.common.util.concurrent.AtomicDouble;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -10,7 +9,6 @@ import xyz.dysaido.squad.api.team.Team;
 import xyz.dysaido.squad.api.team.TeamInvite;
 import xyz.dysaido.squad.api.user.User;
 import xyz.dysaido.squad.util.Format;
-import xyz.dysaido.squad.util.Logger;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -19,12 +17,14 @@ public class UserImpl implements User {
 
     private final SimpleSquad plugin = JavaPlugin.getPlugin(SimpleSquad.class);
     private final UUID id;
+    private final String name;
     private Team team;
     private TeamInvite invite;
     private double balance;
 
-    public UserImpl(UUID id) {
+    public UserImpl(UUID id, String name) {
         this.id = id;
+        this.name = name;
     }
 
     @Override

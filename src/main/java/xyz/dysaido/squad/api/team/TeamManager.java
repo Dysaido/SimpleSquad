@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface TeamManager {
 
-    void createTeam(String name, String leader, String initial);
+    void createTeam(String name, User leader, String initial);
 
     Team get(UUID id);
 
