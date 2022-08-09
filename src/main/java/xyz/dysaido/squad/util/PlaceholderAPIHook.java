@@ -45,7 +45,7 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
     @Override
     public @Nullable String onPlaceholderRequest(Player player, @NotNull String params) {
         if (params.startsWith("player_team")) {
-            Team team = SimpleSquad.getPlugin().getTeamManager().findTeamByPlayer(player);
+            Team team = plugin.getTeamManager().findTeamByPlayer(player);
             switch (params) {
                 case "player_team_name":
                     return Objects.isNull(team) ? "-" : team.getName();
