@@ -24,7 +24,7 @@ public abstract class BaseCommand extends Command {
     @Override
     public boolean execute(@NotNull CommandSender sender, @NotNull String label, String[] args) {
         if (getPermission() != null && !sender.hasPermission(getPermission())) {
-            sender.sendMessage(Format.colored(getPermissionMessage()));
+            sender.sendMessage(MESSAGE.NO_PERMISSION.format());
             return false;
         }
         this.handle(sender, label, args);
@@ -63,7 +63,7 @@ public abstract class BaseCommand extends Command {
         }
 
         public String format() {
-            return ChatColor.translateAlternateColorCodes('&', msg);
+            return Format.colored(msg);
         }
 
     }
