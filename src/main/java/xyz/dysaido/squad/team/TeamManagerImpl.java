@@ -49,7 +49,7 @@ public class TeamManagerImpl implements TeamManager {
         section.set("deaths", 0);
         section.set("money", 0.00D);
         ConfigurationSection membersSection;
-        if (section.isConfigurationSection("members")) {
+        if (!section.isConfigurationSection("members")) {
             membersSection  = section.createSection("members");
         } else {
             membersSection = section.getConfigurationSection("members");
@@ -59,7 +59,11 @@ public class TeamManagerImpl implements TeamManager {
         leaderSection.set("name", player.getName());
         leaderSection.set("type", UserType.LEADER.name());
         plugin.getDataYaml().saveFile();
-        teamMap.computeIfAbsent(id, uuid -> new TeamImpl(uuid, plugin.getDataYaml()));
+        Team team = new TeamImpl(id, plugin.getDataYaml());
+        teamMap.computeIfAbsent(id, uuid -> {
+            leader.setTeam(team);
+            return team;
+        });
     }
 
     @Override
