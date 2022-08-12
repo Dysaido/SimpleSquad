@@ -2,6 +2,7 @@ package xyz.dysaido.squad.api.team;
 
 import org.bukkit.entity.Player;
 import xyz.dysaido.squad.api.user.UserType;
+import xyz.dysaido.squad.util.Pair;
 
 import java.util.List;
 import java.util.Map;
@@ -9,6 +10,10 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 public interface Team {
+
+    Pair<String, UserType> findDataById(UUID id);
+
+    Pair<String, UserType> findDataByName(String name);
 
     UUID getId();
 
@@ -57,6 +62,4 @@ public interface Team {
     void setDamage(boolean damage);
 
     boolean canDamage();
-
-    Map<UUID, UserType> getUserMap();
 }
