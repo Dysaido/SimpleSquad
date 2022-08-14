@@ -31,9 +31,6 @@ public class TeamImpl implements Team {
     private int deaths;
     private double money;
     private boolean damage = false;
-    private boolean changedDeputies = true;
-    private boolean changedMembers = true;
-    private Stream<UUID> deputies, members;
 
     public TeamImpl(UUID id, YamlBuilder dataYaml) {
         this.id = id;
@@ -79,7 +76,7 @@ public class TeamImpl implements Team {
     @Override
     public User findDataByName(String name) {
         return FilterHelper.findValueByPredicate(userMap, user -> Objects.equals(user.getName(), name))
-                .orElseThrow(NullPointerException::new);
+                .orElse(null);
     }
 
     public void forceReset() {
@@ -126,7 +123,6 @@ public class TeamImpl implements Team {
         oldLeaderData.setType(UserType.DEPUTY);
         newLeaderData.setType(UserType.LEADER);
 
-        this.changedDeputies = true;
         this.leader = newLeaderData.getName();
         this.dataYaml.saveFile();
     }
@@ -146,7 +142,6 @@ public class TeamImpl implements Team {
 
         deputyData.setType(UserType.DEPUTY);
 
-        this.changedDeputies = true;
         this.dataYaml.saveFile();
     }
 
@@ -160,19 +155,14 @@ public class TeamImpl implements Team {
 
         oldDeputyData.setType(UserType.MEMBER);
 
-        this.changedDeputies = true;
         this.dataYaml.saveFile();
     }
 
     @Override
     public Stream<UUID> getDeputies() {
-        if (changedDeputies) {
-            deputies = FilterHelper.findValuesByPredicate(userMap, user -> user.getType() == UserType.DEPUTY)
-                    .map(user -> FilterHelper.findKeyByValue(userMap, user).orElse(null))
-                    .filter(Objects::nonNull);
-            changedDeputies = false;
-        }
-        return deputies;
+        return FilterHelper.findValuesByPredicate(userMap, user -> user.getType() == UserType.DEPUTY)
+                .map(user -> FilterHelper.findKeyByValue(userMap, user).orElse(null))
+                .filter(Objects::nonNull);
     }
 
     @Override
@@ -184,7 +174,6 @@ public class TeamImpl implements Team {
         newMember.set("name", user.getName());
         newMember.set("type", UserType.MEMBER.name());
 
-        this.changedMembers = true;
         this.dataYaml.saveFile();
     }
 
@@ -195,12 +184,6 @@ public class TeamImpl implements Team {
 
         membersSection.set(oldMemberId.toString(), null);
 
-        if (oldMember.getType() == UserType.DEPUTY) {
-            this.changedDeputies = true;
-        } else {
-            this.changedMembers = true;
-        }
-
         oldMember.setTeam(null);
         this.userMap.remove(oldMemberId);
         this.dataYaml.saveFile();
@@ -208,13 +191,9 @@ public class TeamImpl implements Team {
 
     @Override
     public Stream<UUID> getMembers() {
-        if (changedMembers) {
-            members = FilterHelper.findValuesByPredicate(userMap, user -> user.getType() == UserType.MEMBER)
-                    .map(user -> FilterHelper.findKeyByValue(userMap, user).orElse(null))
-                    .filter(Objects::nonNull);
-            changedMembers = false;
-        }
-        return members;
+        return FilterHelper.findValuesByPredicate(userMap, user -> user.getType() == UserType.MEMBER)
+                .map(user -> FilterHelper.findKeyByValue(userMap, user).orElse(null))
+                .filter(Objects::nonNull);
     }
 
     @Override
