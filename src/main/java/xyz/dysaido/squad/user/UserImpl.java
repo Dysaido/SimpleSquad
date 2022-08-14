@@ -117,6 +117,8 @@ public class UserImpl implements User {
         return "User{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", team=" + team +
+                ", balance=" + balance +
                 ", type=" + type +
                 '}';
     }
