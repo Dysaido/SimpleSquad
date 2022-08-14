@@ -109,14 +109,13 @@ public class TeamImpl implements Team {
     }
 
     @Override
-    public void setLeader(Player player) {
+    public void setLeader(User newLeaderData) {
         User oldLeaderData = FilterHelper
                 .findValueByPredicate(userMap, user -> user.getType() == UserType.LEADER)
                 .orElseThrow(NullPointerException::new);
         UUID oldLeaderId = oldLeaderData.getId();
 
-        UUID newLeaderId = player.getUniqueId();
-        User newLeaderData = findDataById(newLeaderId);
+        UUID newLeaderId = newLeaderData.getId();
 
         ConfigurationSection oldLeader = membersSection.getConfigurationSection(oldLeaderId.toString());
         ConfigurationSection newLeader = membersSection.getConfigurationSection(newLeaderId.toString());
@@ -128,7 +127,7 @@ public class TeamImpl implements Team {
         newLeaderData.setType(UserType.LEADER);
 
         this.changedDeputies = true;
-        this.leader = player.getName();
+        this.leader = newLeaderData.getName();
         this.dataYaml.saveFile();
     }
 
@@ -177,14 +176,12 @@ public class TeamImpl implements Team {
     }
 
     @Override
-    public void join(Player player) {
-        User user = userManager.get(player.getUniqueId())
-                .orElseGet(() -> userManager.add(player.getUniqueId(), player.getName()));
+    public void join(User user) {
         user.setTeam(this);
         user.setType(UserType.MEMBER);
 
-        ConfigurationSection newMember = membersSection.createSection(player.getUniqueId().toString());
-        newMember.set("name", player.getName());
+        ConfigurationSection newMember = membersSection.createSection(user.getId().toString());
+        newMember.set("name", user.getName());
         newMember.set("type", UserType.MEMBER.name());
 
         this.changedMembers = true;

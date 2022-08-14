@@ -39,8 +39,10 @@ public class TeamManagerImpl implements TeamManager {
     }
 
     @Override
-    public void createTeam(String name, User leader, String initial) {
+    public boolean createTeam(String name, User leader, String initial) {
         UUID id = generateId(name);
+        if (contains(id)) return false;
+
         ConfigurationSection section = dataYaml.createSection(id.toString());
         OfflinePlayer player = Bukkit.getOfflinePlayer(leader.getId());
         section.set("name", name);
@@ -61,6 +63,7 @@ public class TeamManagerImpl implements TeamManager {
         plugin.getDataYaml().saveFile();
         Team team = new TeamImpl(id, plugin.getDataYaml());
         teamMap.put(id, team);
+        return true;
     }
 
     @Override
@@ -79,8 +82,9 @@ public class TeamManagerImpl implements TeamManager {
     }
 
     @Override
-    public void removeTeam(UUID id) {
+    public boolean removeTeam(UUID id) {
         Team team = teamMap.remove(id);
+        if (team == null) return false;
         team.getUserMap().keySet().stream().map(Bukkit::getPlayer)
                 .filter(Objects::nonNull)
                 .map(player -> UserManagerImpl.getInstance().get(player.getUniqueId()))
@@ -89,6 +93,7 @@ public class TeamManagerImpl implements TeamManager {
                 .forEach(user -> user.setTeam(null));
         dataYaml.set(id.toString(), null);
         plugin.getDataYaml().saveFile();
+        return true;
     }
 
     @Override

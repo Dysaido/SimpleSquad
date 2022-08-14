@@ -21,7 +21,7 @@ public interface Team {
 
     boolean isLeader(User user);
 
-    void setLeader(Player player);
+    void setLeader(User user);
 
     String getLeader();
 
@@ -31,7 +31,7 @@ public interface Team {
 
     Stream<UUID> getDeputies();
 
-    void join(Player player);
+    void join(User user);
 
     void kick(String name);
 

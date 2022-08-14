@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface TeamManager {
 
-    void createTeam(String name, User leader, String initial);
+    boolean createTeam(String name, User leader, String initial);
 
     Team get(UUID id);
 
@@ -16,7 +16,7 @@ public interface TeamManager {
 
     UUID generateId(String name);
 
-    void removeTeam(UUID id);
+    boolean removeTeam(UUID id);
 
     Team findTeamByPlayer(Player player);
 
