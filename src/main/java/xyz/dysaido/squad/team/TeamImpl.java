@@ -301,7 +301,7 @@ public class TeamImpl implements Team {
 
     @Override
     public String toString() {
-        return "TeamImpl{" +
+        return "Team{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", initial='" + initial + '\'' +
