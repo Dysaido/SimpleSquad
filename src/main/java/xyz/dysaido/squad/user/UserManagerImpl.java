@@ -1,7 +1,5 @@
 package xyz.dysaido.squad.user;
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Entity;
 import xyz.dysaido.squad.api.user.User;
 import xyz.dysaido.squad.api.user.UserManager;
 
@@ -15,17 +13,6 @@ public class UserManagerImpl implements UserManager {
 
     public static UserManagerImpl getInstance() {
         return instance == null ? instance = new UserManagerImpl() : instance;
-    }
-
-    public void enable() {
-        Bukkit.getServer().getOnlinePlayers().forEach(player -> {
-            this.add(player.getUniqueId(), player.getName());
-        });
-    }
-
-    public void disable() {
-        Bukkit.getServer().getOnlinePlayers().stream().map(Entity::getUniqueId).forEach(this::remove);
-        userMap.clear();
     }
 
     @Override
