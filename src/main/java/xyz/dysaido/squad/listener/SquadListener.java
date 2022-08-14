@@ -15,6 +15,7 @@ import xyz.dysaido.squad.api.team.Team;
 import xyz.dysaido.squad.api.team.TeamManager;
 import xyz.dysaido.squad.api.user.User;
 import xyz.dysaido.squad.api.user.UserManager;
+import xyz.dysaido.squad.util.Logger;
 
 import java.util.Optional;
 
@@ -34,8 +35,7 @@ public class SquadListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         User user = userManager.add(player.getUniqueId(), player.getName());
-        Team team = teamManager.findTeamByPlayer(player);
-        user.setTeam(team);
+        Logger.debug("SquadListener", String.format("Registered %s", user));
     }
 
     @EventHandler
