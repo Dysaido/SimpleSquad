@@ -51,7 +51,6 @@ public final class SimpleSquad extends JavaPlugin implements Squad {
         saveConfig();
         dataYaml = new YamlBuilder(this, "squads");
 
-        UserManagerImpl.getInstance().enable();
         teamManager = new TeamManagerImpl();
         teamManager.loadFromFile();
         commandManager = new CommandManager(this);
@@ -81,7 +80,6 @@ public final class SimpleSquad extends JavaPlugin implements Squad {
         dataYaml.saveFile();
         HandlerList.unregisterAll(listener);
         commandManager.unregisterAll();
-        UserManagerImpl.getInstance().disable();
     }
 
     public static SimpleSquad getPlugin() {
