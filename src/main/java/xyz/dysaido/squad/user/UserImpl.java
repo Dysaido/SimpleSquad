@@ -8,6 +8,7 @@ import xyz.dysaido.squad.SimpleSquad;
 import xyz.dysaido.squad.api.team.Team;
 import xyz.dysaido.squad.api.team.TeamInvite;
 import xyz.dysaido.squad.api.user.User;
+import xyz.dysaido.squad.api.user.UserType;
 import xyz.dysaido.squad.util.Format;
 
 import java.util.Optional;
@@ -21,6 +22,8 @@ public class UserImpl implements User {
     private Team team;
     private TeamInvite invite;
     private double balance;
+
+    private UserType type;
 
     public UserImpl(UUID id, String name) {
         this.id = id;
@@ -93,5 +96,20 @@ public class UserImpl implements User {
             Format.hookWarningMessage("User", "Vault", "getBalance");
         });
         return balance;
+    }
+
+    @Override
+    public void setType(UserType type) {
+        this.type = type;
+    }
+
+    @Override
+    public UserType getType() {
+        return type;
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 }

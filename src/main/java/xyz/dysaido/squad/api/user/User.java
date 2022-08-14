@@ -27,4 +27,10 @@ public interface User {
     void deposit(double amount);
 
     double getBalance();
+
+    void setType(UserType type);
+
+    UserType getType();
+
+    String getName();
 }
