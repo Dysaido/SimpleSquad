@@ -1,14 +1,16 @@
 package xyz.dysaido.squad.team;
 
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import xyz.dysaido.squad.SimpleSquad;
 import xyz.dysaido.squad.api.team.Team;
+import xyz.dysaido.squad.api.user.User;
+import xyz.dysaido.squad.api.user.UserManager;
 import xyz.dysaido.squad.api.user.UserType;
+import xyz.dysaido.squad.user.UserManagerImpl;
 import xyz.dysaido.squad.util.FilterHelper;
-import xyz.dysaido.squad.util.Pair;
+import xyz.dysaido.squad.util.Logger;
 import xyz.dysaido.squad.util.YamlBuilder;
 
 import java.util.*;
@@ -17,22 +19,20 @@ import java.util.stream.Stream;
 public class TeamImpl implements Team {
 
     private final SimpleSquad plugin = JavaPlugin.getPlugin(SimpleSquad.class);
+    private final UserManager userManager = UserManagerImpl.getInstance();
+    private final Map<UUID, User> userMap = new HashMap<>();
     private final UUID id;
     private final String name;
     private final String initial;
     private final YamlBuilder dataYaml;
     private final ConfigurationSection section, membersSection;
     private String leader;
-    private final Map<UUID, Pair<String, UserType>> userMap = new HashMap<>();
     private int kills;
     private int deaths;
     private double money;
     private boolean damage = false;
-
     private boolean changedDeputies = true;
-
     private boolean changedMembers = true;
-
     private Stream<UUID> deputies, members;
 
     public TeamImpl(UUID id, YamlBuilder dataYaml) {
@@ -53,30 +53,32 @@ public class TeamImpl implements Team {
             ConfigurationSection member = membersSection.getConfigurationSection(memberId);
             Objects.requireNonNull(member);
 
-            UUID uuid = UUID.fromString(memberId);
+            UUID userId = UUID.fromString(memberId);
             String name = member.getString("name");
             UserType type = UserType.valueOf(member.getString("type"));
 
-            userMap.putIfAbsent(uuid, new Pair<>(name, type));
+            User user = userManager.add(userId, name);
+            user.setTeam(this);
+            user.setType(type);
+            userMap.putIfAbsent(userId, user);
+            Logger.debug("Team", "Loaded " + user);
         }
 
-        Pair<String, UserType> leaderData = FilterHelper
-                .findValueByPredicate(userMap, pair -> pair.getValue() == UserType.LEADER)
-                .orElseThrow(NullPointerException::new);
-        UUID assumed = FilterHelper.findKeyByValue(userMap, leaderData)
+        User leader = FilterHelper
+                .findValueByPredicate(userMap, user -> user.getType() == UserType.LEADER)
                 .orElseThrow(NullPointerException::new);
 
-        this.leader = Bukkit.getOfflinePlayer(assumed).getName();
+        this.leader = leader.getName();
     }
 
     @Override
-    public Pair<String, UserType> findDataById(UUID id) {
+    public User findDataById(UUID id) {
         return userMap.get(id);
     }
 
     @Override
-    public Pair<String, UserType> findDataByName(String name) {
-        return FilterHelper.findValueByPredicate(userMap, key -> Objects.equals(key.getKey(), name))
+    public User findDataByName(String name) {
+        return FilterHelper.findValueByPredicate(userMap, user -> Objects.equals(user.getName(), name))
                 .orElseThrow(NullPointerException::new);
     }
 
@@ -102,20 +104,19 @@ public class TeamImpl implements Team {
     }
 
     @Override
-    public boolean isLeader(Player player) {
-        return this.leader.equals(player.getName());
+    public boolean isLeader(User user) {
+        return this.leader.equals(user.getName());
     }
 
     @Override
     public void setLeader(Player player) {
-        Pair<String, UserType> oldLeaderData = FilterHelper
-                .findValueByPredicate(userMap, pair -> pair.getValue() == UserType.LEADER)
+        User oldLeaderData = FilterHelper
+                .findValueByPredicate(userMap, user -> user.getType() == UserType.LEADER)
                 .orElseThrow(NullPointerException::new);
-        UUID oldLeaderId = FilterHelper.findKeyByValue(userMap, oldLeaderData)
-                .orElseThrow(NullPointerException::new);
+        UUID oldLeaderId = oldLeaderData.getId();
 
         UUID newLeaderId = player.getUniqueId();
-        Pair<String, UserType> newLeaderData = findDataById(newLeaderId);
+        User newLeaderData = findDataById(newLeaderId);
 
         ConfigurationSection oldLeader = membersSection.getConfigurationSection(oldLeaderId.toString());
         ConfigurationSection newLeader = membersSection.getConfigurationSection(newLeaderId.toString());
@@ -123,8 +124,8 @@ public class TeamImpl implements Team {
         Objects.requireNonNull(oldLeader).set("type", UserType.DEPUTY.name());
         Objects.requireNonNull(newLeader).set("type", UserType.LEADER.name());
 
-        oldLeaderData.setValue(UserType.DEPUTY);
-        newLeaderData.setValue(UserType.LEADER);
+        oldLeaderData.setType(UserType.DEPUTY);
+        newLeaderData.setType(UserType.LEADER);
 
         this.changedDeputies = true;
         this.leader = player.getName();
@@ -139,12 +140,12 @@ public class TeamImpl implements Team {
     @Override
     public void addDeputy(Player player) {
         UUID deputyId = player.getUniqueId();
-        Pair<String, UserType> deputyData = findDataById(deputyId);
+        User deputyData = findDataById(deputyId);
 
         ConfigurationSection newDeputy = membersSection.getConfigurationSection(deputyId.toString());
         Objects.requireNonNull(newDeputy).set("type", UserType.DEPUTY.name());
 
-        deputyData.setValue(UserType.DEPUTY);
+        deputyData.setType(UserType.DEPUTY);
 
         this.changedDeputies = true;
         this.dataYaml.saveFile();
@@ -152,14 +153,13 @@ public class TeamImpl implements Team {
 
     @Override
     public void removeDeputy(String name) {
-        Pair<String, UserType> oldDeputyData = this.findDataByName(name);
-        UUID oldDeputyId = FilterHelper.findKeyByValue(userMap, oldDeputyData)
-                .orElseThrow(NullPointerException::new);
+        User oldDeputyData = this.findDataByName(name);
+        UUID oldDeputyId = oldDeputyData.getId();
 
         ConfigurationSection subject = membersSection.getConfigurationSection(oldDeputyId.toString());
         Objects.requireNonNull(subject).set("type", UserType.MEMBER.name());
 
-        oldDeputyData.setValue(UserType.MEMBER);
+        oldDeputyData.setType(UserType.MEMBER);
 
         this.changedDeputies = true;
         this.dataYaml.saveFile();
@@ -168,8 +168,8 @@ public class TeamImpl implements Team {
     @Override
     public Stream<UUID> getDeputies() {
         if (changedDeputies) {
-            deputies = FilterHelper.findValuesByPredicate(userMap, data -> data.getValue() == UserType.DEPUTY)
-                    .map(data -> FilterHelper.findKeyByValue(userMap, data).orElse(null))
+            deputies = FilterHelper.findValuesByPredicate(userMap, user -> user.getType() == UserType.DEPUTY)
+                    .map(user -> FilterHelper.findKeyByValue(userMap, user).orElse(null))
                     .filter(Objects::nonNull);
             changedDeputies = false;
         }
@@ -178,6 +178,11 @@ public class TeamImpl implements Team {
 
     @Override
     public void join(Player player) {
+        User user = userManager.get(player.getUniqueId())
+                .orElseGet(() -> userManager.add(player.getUniqueId(), player.getName()));
+        user.setTeam(this);
+        user.setType(UserType.MEMBER);
+
         ConfigurationSection newMember = membersSection.createSection(player.getUniqueId().toString());
         newMember.set("name", player.getName());
         newMember.set("type", UserType.MEMBER.name());
@@ -188,17 +193,18 @@ public class TeamImpl implements Team {
 
     @Override
     public void kick(String name) {
-        Pair<String, UserType> oldMember = this.findDataByName(name);
-        UUID oldMemberId = FilterHelper.findKeyByValue(userMap, oldMember)
-                .orElseThrow(NullPointerException::new);
+        User oldMember = this.findDataByName(name);
+        UUID oldMemberId = oldMember.getId();
 
         membersSection.set(oldMemberId.toString(), null);
 
-        if (oldMember.getValue() == UserType.DEPUTY) {
+        if (oldMember.getType() == UserType.DEPUTY) {
             this.changedDeputies = true;
         } else {
             this.changedMembers = true;
         }
+
+        oldMember.setTeam(null);
         this.userMap.remove(oldMemberId);
         this.dataYaml.saveFile();
     }
@@ -206,8 +212,8 @@ public class TeamImpl implements Team {
     @Override
     public Stream<UUID> getMembers() {
         if (changedMembers) {
-            members = FilterHelper.findValuesByPredicate(userMap, data -> data.getValue() == UserType.MEMBER)
-                    .map(data -> FilterHelper.findKeyByValue(userMap, data).orElse(null))
+            members = FilterHelper.findValuesByPredicate(userMap, user -> user.getType() == UserType.MEMBER)
+                    .map(user -> FilterHelper.findKeyByValue(userMap, user).orElse(null))
                     .filter(Objects::nonNull);
             changedMembers = false;
         }
@@ -286,5 +292,24 @@ public class TeamImpl implements Team {
     @Override
     public boolean canDamage() {
         return damage;
+    }
+
+    @Override
+    public Map<UUID, User> getUserMap() {
+        return userMap;
+    }
+
+    @Override
+    public String toString() {
+        return "TeamImpl{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", initial='" + initial + '\'' +
+                ", leader='" + leader + '\'' +
+                ", kills=" + kills +
+                ", deaths=" + deaths +
+                ", money=" + money +
+                ", damage=" + damage +
+                '}';
     }
 }

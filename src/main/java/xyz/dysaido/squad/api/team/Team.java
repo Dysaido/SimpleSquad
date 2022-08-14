@@ -1,19 +1,17 @@
 package xyz.dysaido.squad.api.team;
 
 import org.bukkit.entity.Player;
-import xyz.dysaido.squad.api.user.UserType;
-import xyz.dysaido.squad.util.Pair;
+import xyz.dysaido.squad.api.user.User;
 
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
 public interface Team {
 
-    Pair<String, UserType> findDataById(UUID id);
+    User findDataById(UUID id);
 
-    Pair<String, UserType> findDataByName(String name);
+    User findDataByName(String name);
 
     UUID getId();
 
@@ -21,7 +19,7 @@ public interface Team {
 
     String getInitial();
 
-    boolean isLeader(Player player);
+    boolean isLeader(User user);
 
     void setLeader(Player player);
 
@@ -62,4 +60,6 @@ public interface Team {
     void setDamage(boolean damage);
 
     boolean canDamage();
+
+    Map<UUID, User> getUserMap();
 }
