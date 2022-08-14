@@ -14,6 +14,8 @@ public interface TeamManager {
 
     boolean contains(UUID id);
 
+    UUID generateId(String name);
+
     void removeTeam(UUID id);
 
     Team findTeamByPlayer(Player player);

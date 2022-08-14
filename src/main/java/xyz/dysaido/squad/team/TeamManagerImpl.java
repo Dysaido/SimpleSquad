@@ -33,14 +33,14 @@ public class TeamManagerImpl implements TeamManager {
             UUID uuid = UUID.fromString(id);
             if (section == null || teamMap.containsKey(UUID.fromString(id))) continue;
             TeamImpl team = new TeamImpl(uuid, plugin.getDataYaml());
-            teamMap.putIfAbsent(uuid, team);
+            teamMap.put(uuid, team);
         }
 
     }
 
     @Override
     public void createTeam(String name, User leader, String initial) {
-        UUID id = UUID.nameUUIDFromBytes(("Squad:" + name).getBytes(Charsets.UTF_8));
+        UUID id = generateId(name);
         ConfigurationSection section = dataYaml.createSection(id.toString());
         OfflinePlayer player = Bukkit.getOfflinePlayer(leader.getId());
         section.set("name", name);
@@ -60,10 +60,7 @@ public class TeamManagerImpl implements TeamManager {
         leaderSection.set("type", UserType.LEADER.name());
         plugin.getDataYaml().saveFile();
         Team team = new TeamImpl(id, plugin.getDataYaml());
-        teamMap.computeIfAbsent(id, uuid -> {
-            leader.setTeam(team);
-            return team;
-        });
+        teamMap.put(id, team);
     }
 
     @Override
@@ -74,6 +71,11 @@ public class TeamManagerImpl implements TeamManager {
     @Override
     public boolean contains(UUID id) {
         return teamMap.containsKey(id);
+    }
+
+    @Override
+    public UUID generateId(String name) {
+        return UUID.nameUUIDFromBytes(("Squad:" + name).getBytes(Charsets.UTF_8));
     }
 
     @Override
