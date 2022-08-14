@@ -71,6 +71,11 @@ public class UserImpl implements User {
     }
 
     @Override
+    public boolean isAuthorized() {
+        return team != null && team.getDeputies().anyMatch(uuid -> uuid.equals(id));
+    }
+
+    @Override
     public UUID getId() {
         return id;
     }

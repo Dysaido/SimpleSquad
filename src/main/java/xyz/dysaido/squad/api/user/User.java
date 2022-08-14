@@ -22,6 +22,8 @@ public interface User {
 
     boolean isLeader();
 
+    boolean isAuthorized();
+
     UUID getId();
 
     void withdraw(double amount);
