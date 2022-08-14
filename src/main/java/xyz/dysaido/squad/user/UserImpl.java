@@ -60,6 +60,12 @@ public class UserImpl implements User {
     }
 
     @Override
+    public void sendMessage(String message) {
+        Player player = Bukkit.getPlayer(id);
+        if (player != null) player.sendMessage(Format.colored(message));
+    }
+
+    @Override
     public boolean isLeader() {
         return team != null && team.isLeader(this);
     }

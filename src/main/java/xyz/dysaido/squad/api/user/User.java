@@ -18,6 +18,8 @@ public interface User {
 
     boolean isSame(User user);
 
+    void sendMessage(String message);
+
     boolean isLeader();
 
     UUID getId();
