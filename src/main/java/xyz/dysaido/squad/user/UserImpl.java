@@ -61,8 +61,7 @@ public class UserImpl implements User {
 
     @Override
     public boolean isLeader() {
-        Player player = Bukkit.getPlayer(id);
-        return team != null && player != null && team.isLeader(player);
+        return team != null && team.isLeader(this);
     }
 
     @Override
@@ -111,5 +110,14 @@ public class UserImpl implements User {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                ", id=" + id +
+                ", name='" + name + '\'' +
+                ", type=" + type +
+                '}';
     }
 }
