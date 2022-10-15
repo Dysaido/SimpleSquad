@@ -16,9 +16,10 @@ public class UserManagerImpl implements UserManager {
     }
 
     @Override
-    public User add(UUID id, String name) {
+    public User addOrGet(UUID id, String name) {
         Objects.requireNonNull(id);
-        return userMap.computeIfAbsent(id, uuid -> new UserImpl(uuid, name));
+        Objects.requireNonNull(name);
+        return this.userMap.computeIfAbsent(id, uuid -> new UserImpl(uuid, name));
     }
 
     @Override

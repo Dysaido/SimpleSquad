@@ -1,7 +1,6 @@
 package xyz.dysaido.squad.team;
 
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import xyz.dysaido.squad.SimpleSquad;
 import xyz.dysaido.squad.api.team.Team;
@@ -13,7 +12,10 @@ import xyz.dysaido.squad.util.FilterHelper;
 import xyz.dysaido.squad.util.Logger;
 import xyz.dysaido.squad.util.YamlBuilder;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 public class TeamImpl implements Team {
@@ -26,7 +28,7 @@ public class TeamImpl implements Team {
     private final String initial;
     private final YamlBuilder dataYaml;
     private final ConfigurationSection section, membersSection;
-    private String leader;
+    private User leader;
     private int kills;
     private int deaths;
     private double money;
@@ -54,18 +56,17 @@ public class TeamImpl implements Team {
             String name = member.getString("name");
             UserType type = UserType.valueOf(member.getString("type"));
 
-            User user = userManager.add(userId, name);
+            User user = userManager.addOrGet(userId, name);
             user.setTeam(this);
             user.setType(type);
             userMap.putIfAbsent(userId, user);
             Logger.debug("Team", "Loaded " + user);
         }
 
-        User leader = FilterHelper
+        this.leader = FilterHelper
                 .findValueByPredicate(userMap, user -> user.getType() == UserType.LEADER)
                 .orElseThrow(NullPointerException::new);
 
-        this.leader = leader.getName();
     }
 
     @Override
@@ -102,15 +103,13 @@ public class TeamImpl implements Team {
 
     @Override
     public boolean isLeader(User user) {
-        return this.leader.equals(user.getName());
+        return this.leader.getId().equals(user.getId());
     }
 
     @Override
     public void setLeader(User newLeaderData) {
-        User oldLeaderData = FilterHelper
-                .findValueByPredicate(userMap, user -> user.getType() == UserType.LEADER)
-                .orElseThrow(NullPointerException::new);
-        UUID oldLeaderId = oldLeaderData.getId();
+        User oldLeaderData = this.leader;
+        UUID oldLeaderId = this.leader.getId();
 
         UUID newLeaderId = newLeaderData.getId();
 
@@ -123,24 +122,23 @@ public class TeamImpl implements Team {
         oldLeaderData.setType(UserType.DEPUTY);
         newLeaderData.setType(UserType.LEADER);
 
-        this.leader = newLeaderData.getName();
+        this.leader = newLeaderData;
         this.dataYaml.saveFile();
     }
 
     @Override
-    public String getLeader() {
+    public User getLeader() {
         return leader;
     }
 
     @Override
-    public void addDeputy(Player player) {
-        UUID deputyId = player.getUniqueId();
-        User deputyData = findDataById(deputyId);
+    public void addDeputy(User user) {
+        UUID deputyId = user.getId();
 
         ConfigurationSection newDeputy = membersSection.getConfigurationSection(deputyId.toString());
         Objects.requireNonNull(newDeputy).set("type", UserType.DEPUTY.name());
 
-        deputyData.setType(UserType.DEPUTY);
+        user.setType(UserType.DEPUTY);
 
         this.dataYaml.saveFile();
     }
@@ -174,6 +172,7 @@ public class TeamImpl implements Team {
         newMember.set("name", user.getName());
         newMember.set("type", UserType.MEMBER.name());
 
+        this.userMap.put(user.getId(), user);
         this.dataYaml.saveFile();
     }
 
@@ -185,6 +184,7 @@ public class TeamImpl implements Team {
         membersSection.set(oldMemberId.toString(), null);
 
         oldMember.setTeam(null);
+        oldMember.setType(null);
         this.userMap.remove(oldMemberId);
         this.dataYaml.saveFile();
     }

@@ -4,6 +4,7 @@ import org.bukkit.entity.Player;
 import xyz.dysaido.squad.api.user.User;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface TeamManager {
@@ -18,7 +19,7 @@ public interface TeamManager {
 
     boolean removeTeam(UUID id);
 
-    Team findTeamByPlayer(Player player);
+    Optional<Team> findTeamById(UUID id);
 
     boolean hasInvited(User user);
 

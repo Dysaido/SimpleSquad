@@ -1,8 +1,11 @@
-debug: false
+debug: true
 invite-time: 60
+chat-prefix:
+  enable: false
+  format: "&7[&6%initial%&7] &r"
 command:
   name: "squad"
-  aliases: [gang, team, clan]
+  aliases: [gang, team, clan, guild]
   permission: "simplesquad.command.squad"
   create:
     name: "create"

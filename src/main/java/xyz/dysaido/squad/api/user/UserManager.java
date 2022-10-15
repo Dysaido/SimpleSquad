@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public interface UserManager {
 
-    User add(UUID id, String name);
+    User addOrGet(UUID id, String name);
 
     Optional<User> get(UUID id);
 

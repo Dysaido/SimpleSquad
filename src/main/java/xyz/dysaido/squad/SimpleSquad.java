@@ -7,7 +7,6 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import xyz.dysaido.squad.api.Squad;
 import xyz.dysaido.squad.api.command.CommandManager;
-import xyz.dysaido.squad.api.team.Team;
 import xyz.dysaido.squad.api.team.TeamManager;
 import xyz.dysaido.squad.api.user.UserManager;
 import xyz.dysaido.squad.commands.SquadCommand;
@@ -17,8 +16,8 @@ import xyz.dysaido.squad.user.UserManagerImpl;
 import xyz.dysaido.squad.util.*;
 
 import java.lang.reflect.Field;
-import java.util.*;
-import java.util.stream.Stream;
+import java.util.Map;
+import java.util.Optional;
 
 public final class SimpleSquad extends JavaPlugin implements Squad {
 
@@ -53,8 +52,10 @@ public final class SimpleSquad extends JavaPlugin implements Squad {
 
         teamManager = new TeamManagerImpl();
         teamManager.loadFromFile();
+
         commandManager = new CommandManager(this);
         commandManager.register("simplesquad", new SquadCommand(this));
+
         listener = new SquadListener(this);
         getServer().getPluginManager().registerEvents(listener, this);
     }
@@ -71,6 +72,10 @@ public final class SimpleSquad extends JavaPlugin implements Squad {
     @Override
     public void reload() {
         dataYaml.reloadFile();
+
+        HandlerList.unregisterAll(listener);
+        getServer().getPluginManager().registerEvents(listener, this);
+
         commandManager.unregisterAll();
         commandManager.register("simplesquad", new SquadCommand(this));
     }

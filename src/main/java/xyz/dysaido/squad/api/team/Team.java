@@ -1,6 +1,5 @@
 package xyz.dysaido.squad.api.team;
 
-import org.bukkit.entity.Player;
 import xyz.dysaido.squad.api.user.User;
 
 import java.util.Map;
@@ -23,9 +22,9 @@ public interface Team {
 
     void setLeader(User user);
 
-    String getLeader();
+    User getLeader();
 
-    void addDeputy(Player player);
+    void addDeputy(User user);
 
     void removeDeputy(String name);
 

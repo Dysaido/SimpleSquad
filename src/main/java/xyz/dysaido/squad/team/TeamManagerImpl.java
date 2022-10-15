@@ -5,7 +5,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import xyz.dysaido.squad.SimpleSquad;
 import xyz.dysaido.squad.api.team.Team;
@@ -97,8 +96,8 @@ public class TeamManagerImpl implements TeamManager {
     }
 
     @Override
-    public Team findTeamByPlayer(Player player) {
-        return teamMap.values().stream().filter(team -> team.getUserMap().containsKey(player.getUniqueId())).findFirst().orElse(null);
+    public Optional<Team> findTeamById(UUID id) {
+        return teamMap.values().stream().filter(team -> team.getUserMap().containsKey(id)).findFirst();
     }
 
     @Override

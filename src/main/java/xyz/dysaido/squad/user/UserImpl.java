@@ -72,7 +72,7 @@ public class UserImpl implements User {
 
     @Override
     public boolean isAuthorized() {
-        return team != null && (team.getDeputies().anyMatch(uuid -> uuid.equals(id)) || team.isLeader(this));
+        return team != null && (team.isLeader(this) || team.getDeputies().anyMatch(uuid -> uuid.equals(id)));
     }
 
     @Override
@@ -128,8 +128,6 @@ public class UserImpl implements User {
         return "User{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", team=" + team +
-                ", balance=" + balance +
                 ", type=" + type +
                 '}';
     }

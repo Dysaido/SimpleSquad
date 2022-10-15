@@ -12,14 +12,17 @@ import xyz.dysaido.squad.api.user.User;
 import xyz.dysaido.squad.api.user.UserManager;
 import xyz.dysaido.squad.config.DefaultYaml;
 import xyz.dysaido.squad.user.UserManagerImpl;
+import xyz.dysaido.squad.util.FilterHelper;
 import xyz.dysaido.squad.util.Format;
+import xyz.dysaido.squad.util.Logger;
 import xyz.dysaido.squad.util.NumericParser;
 
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class SquadCommand extends BaseCommand {
+    private static final String TAG = "SquadCommand";
     private final UserManager userManager = UserManagerImpl.getInstance();
     private final TeamManager teamManager = plugin.getTeamManager();
 
@@ -43,10 +46,10 @@ public class SquadCommand extends BaseCommand {
     @Override
     public void handle(CommandSender sender, String label, String[] args) {
         if (DefaultYaml.DEBUG) {
-            System.out.println(sender.getName());
-            System.out.println(label);
+            Logger.debug(TAG, "Executor - " + sender.getName());
+            Logger.debug(TAG, "Label - " + label);
             for (int i = 0; i < args.length; i++) {
-                System.out.println(i + "# " + args[i]);
+                Logger.debug(TAG, i + "# " + args[i]);
             }
         }
         if (args.length >= 1) {
@@ -55,9 +58,11 @@ public class SquadCommand extends BaseCommand {
             Player player = (Player) sender;
             String playerName = player.getName();
             UUID playerId = player.getUniqueId();
-            User user = userManager.get(playerId).orElseGet(() -> plugin.getUserManager().add(playerId, playerName));
+            User user = userManager.get(playerId).orElseGet(() -> plugin.getUserManager().addOrGet(playerId, playerName));
 
-            if (alias.equalsIgnoreCase("create")) {
+            if (alias.equalsIgnoreCase("reload")) {
+                onReload(sender, args);
+            } else if (alias.equalsIgnoreCase("create")) {
                 onCreate(user, args);
             } else if (alias.equalsIgnoreCase("delete")) {
                 onDelete(user, args);
@@ -82,7 +87,7 @@ public class SquadCommand extends BaseCommand {
             } else if (alias.equalsIgnoreCase("deposit")) {
                 onBankDeposit(user, args);
             } else if (alias.equalsIgnoreCase("damage")) {
-                onDamage(player, args);
+                onDamage(user, args);
             } else if (alias.equalsIgnoreCase("host")) {
             } else if (alias.equalsIgnoreCase("chat")) {
             } else if (alias.equalsIgnoreCase("deputy")) {
@@ -91,6 +96,34 @@ public class SquadCommand extends BaseCommand {
             sender.sendMessage("TODO: Help message");
         }
 
+    }
+    private void sendHelp(User user) {
+        user.sendMessage("&5&lKlán parancsok");
+        user.sendMessage("&5&lAliases: " + getAliases());
+        user.sendMessage("&dAccept &7(elfogad) - &f/klán elfogad");
+        user.sendMessage("&dDeny &7(elutasít) - &f/klán elutasít");
+        user.sendMessage("&dCreate &7(létrehoz) - &f/klán létrehoz [név] [prefix]");
+        user.sendMessage("&dDelete &7(töröl) - &f/klán töröl");
+        user.sendMessage("&dInvite &7(meghív) - &fklán meghív");
+        user.sendMessage("&dKick &7(kirúg) - &f/klán kirúg [játékos]");
+        user.sendMessage("&dLeave &7(elhagy) - &f/klán elhagy");
+        user.sendMessage("&dAppoint &7(kinevez) - &f/klán kinevez");
+
+        user.sendMessage("&dDeposit &7(befizet) - &f/klán befizet összeg");
+        user.sendMessage("&dWithdraw &7(kivesz) - &f/klán kivesz összeg");
+
+        user.sendMessage("&dTop &7(top) - &f/klán top");
+        user.sendMessage("&dList &7(klánok) - &f/klán list");
+        user.sendMessage("&dMyclan &7(klánom) - &f/klán klánom");
+        user.sendMessage("&dAbout &7(infó) - &f/klán infó");
+    }
+    private void onReload(CommandSender sender, String[] args) {
+        if (args.length == 1) {
+            plugin.reload();
+            sender.sendMessage("Successful reload");
+        } else {
+            sender.sendMessage("/clan reload");
+        }
     }
 
     private void onChat(Player player, String[] args) {
@@ -247,6 +280,10 @@ public class SquadCommand extends BaseCommand {
         if (args.length == 2) {
             String alias = args[0];
             String member = args[1];
+            if (!sender.getTeam().isPresent()) {
+                sender.sendMessage("Squad is null");
+                return;
+            }
             if (!sender.isAuthorized()) {
                 sender.sendMessage("&cNem vagy felhatalmazva ehhez a muvelethez!");
                 return;
@@ -257,7 +294,7 @@ public class SquadCommand extends BaseCommand {
                 return;
             }
             User target = userManager.get(targetPlayer.getUniqueId())
-                    .orElseGet(() -> userManager.add(targetPlayer.getUniqueId(), targetPlayer.getName()));
+                    .orElseGet(() -> userManager.addOrGet(targetPlayer.getUniqueId(), targetPlayer.getName()));
             if (sender.equals(target)) {
                 sender.sendMessage("Nem hivhatod meg magad");
             } else {
@@ -353,14 +390,16 @@ public class SquadCommand extends BaseCommand {
                 Team team = user.getTeam().get();
                 user.sendMessage("&6Name&7: " + team.getName());
                 user.sendMessage("&6Initial&7: " + team.getInitial());
-                user.sendMessage("&6Leader&7: " + team.getLeader());
+                user.sendMessage("&6Leader&7: " + team.getLeader().getName());
                 user.sendMessage("&6Kills&7: " + team.getKills());
                 user.sendMessage("&6Deaths&7: " + team.getDeaths());
                 user.sendMessage("&6Money&7: " + team.getMoney());
-                user.sendMessage("&6Members&7: " + team.getMembers());
-                user.sendMessage("&6Deputies&7: " + team.getDeputies());
+                user.sendMessage("&6Members&7: " + team.getMembers().map(userManager::get)
+                        .filter(Optional::isPresent).map(Optional::get).map(User::getName).collect(Collectors.toList()));
+                user.sendMessage("&6Deputies&7: " + team.getDeputies().map(userManager::get)
+                        .filter(Optional::isPresent).map(Optional::get).map(User::getName).collect(Collectors.toList()));
             } else {
-                user.sendMessage("&cNem található klán!");
+                user.sendMessage("&cKibaszottKurvaKlanod nem letezik bazdmeg! Csinalj egyet a kurva eletbe");
             }
         }
 
@@ -418,12 +457,21 @@ public class SquadCommand extends BaseCommand {
         }
     }
 
-    private void onDamage(Player player, String[] args) {
-        if (args.length == 2) {
+    private void onDamage(User user, String[] args) {
+        if (args.length == 1) {
             String alias = args[0];
-            String bool = args[1];
+            if (user.isLeader()) {
+                Team team = user.getTeam().get();
+                team.setDamage(!team.canDamage());
+                user.sendMessage("&aSuccessful modification: &c" + team.canDamage());
+                team.getUserMap().values().forEach(user1 -> {
+                    user1.sendMessage("&6&l!!!!!WARNING!!!!!");
+                    user1.sendMessage("&cPvPMode is &l" + team.canDamage() + " &cin this team!");
+                    user1.sendMessage("&6&l!!!!!WARNING!!!!!");
+                });
+            }
         } else {
-            player.sendMessage("/clan damage <true|false>");
+            user.sendMessage("/clan damage");
         }
     }
 }

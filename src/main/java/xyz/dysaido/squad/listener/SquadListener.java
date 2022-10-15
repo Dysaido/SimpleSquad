@@ -8,6 +8,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.projectiles.ProjectileSource;
 import xyz.dysaido.squad.SimpleSquad;
@@ -15,6 +16,8 @@ import xyz.dysaido.squad.api.team.Team;
 import xyz.dysaido.squad.api.team.TeamManager;
 import xyz.dysaido.squad.api.user.User;
 import xyz.dysaido.squad.api.user.UserManager;
+import xyz.dysaido.squad.config.DefaultYaml;
+import xyz.dysaido.squad.util.Format;
 import xyz.dysaido.squad.util.Logger;
 
 import java.util.Optional;
@@ -34,8 +37,21 @@ public class SquadListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        User user = userManager.add(player.getUniqueId(), player.getName());
+        User user = userManager.addOrGet(player.getUniqueId(), player.getName());
         Logger.debug("SquadListener", String.format("Registered %s", user));
+    }
+
+    @EventHandler
+    public void onChat(AsyncPlayerChatEvent event) {
+        Optional<Team> optional = teamManager.findTeamById(event.getPlayer().getUniqueId());
+        if (optional.isPresent() && DefaultYaml.CHAT_PREFIX) {
+            Team team = optional.get();
+            String format = Format.colored(DefaultYaml.CHAT_PREFIX_FORMAT);
+            format = format.replace("%initial%", team.getInitial());
+            format = format + event.getFormat();
+            event.setFormat(format);
+        }
+
     }
 
     @EventHandler
@@ -54,21 +70,28 @@ public class SquadListener implements Listener {
     public void onEntityDamage(EntityDamageByEntityEvent event) {
         Entity victimEntity = event.getEntity();
         Entity killerEntity = event.getDamager();
-        if (victimEntity instanceof Player && killerEntity instanceof Player) {
-            protectMembers(event, (Player) victimEntity, (Player) killerEntity);
-        } else if (victimEntity instanceof Player && killerEntity instanceof Projectile) {
-            ProjectileSource shooter = ((Projectile) killerEntity).getShooter();
-            if (shooter instanceof Player) {
-                if (!victimEntity.getUniqueId().equals(((Player) shooter).getUniqueId())) {
-                    protectMembers(event, (Player) victimEntity, (Player) shooter);
+        if (victimEntity instanceof Player) {
+            Player destination = (Player) victimEntity;
+            if (killerEntity instanceof Player) {
+                Player source = (Player) killerEntity;
+                protectMembers(event, destination, source);
+            } else if (killerEntity instanceof Projectile) {
+                ProjectileSource shooter = ((Projectile) killerEntity).getShooter();
+                if (shooter instanceof Player) {
+                    Player source = (Player) shooter;
+                    if (!victimEntity.getUniqueId().equals(source.getUniqueId())) {
+                        protectMembers(event, destination, source);
+                    }
                 }
             }
         }
     }
 
     private void protectMembers(Cancellable cancellable, Player victimPlayer, Player killerPlayer) {
-        User victim = userManager.get(victimPlayer.getUniqueId()).orElseThrow(NullPointerException::new);
-        User killer = userManager.get(killerPlayer.getUniqueId()).orElseThrow(NullPointerException::new);
+        User victim = userManager.get(victimPlayer.getUniqueId())
+                .orElseGet(() -> userManager.addOrGet(victimPlayer.getUniqueId(), victimPlayer.getName()));
+        User killer = userManager.get(killerPlayer.getUniqueId())
+                .orElseGet(() -> userManager.addOrGet(killerPlayer.getUniqueId(), killerPlayer.getName()));
         if (victim.isSame(killer)) {
             cancellable.setCancelled(true);
         }
